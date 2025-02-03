@@ -335,29 +335,29 @@ function updatePitch( time ) {
 	var ac = autoCorrelate( buf, audioContext.sampleRate );
 	// TODO: Paint confidence meter on canvasElem here.
 
-	if (DEBUGCANVAS) {  // This draws the current waveform, useful for debugging
-		waveCanvas.clearRect(0,0,512,256);
-		waveCanvas.strokeStyle = "red";
-		waveCanvas.beginPath();
-		waveCanvas.moveTo(0,0);
-		waveCanvas.lineTo(0,256);
-		waveCanvas.moveTo(128,0);
-		waveCanvas.lineTo(128,256);
-		waveCanvas.moveTo(256,0);
-		waveCanvas.lineTo(256,256);
-		waveCanvas.moveTo(384,0);
-		waveCanvas.lineTo(384,256);
-		waveCanvas.moveTo(512,0);
-		waveCanvas.lineTo(512,256);
-		waveCanvas.stroke();
-		waveCanvas.strokeStyle = "black";
-		waveCanvas.beginPath();
-		waveCanvas.moveTo(0,buf[0]);
-		for (var i=1;i<512;i++) {
-			waveCanvas.lineTo(i,128+(buf[i]*128));
-		}
-		waveCanvas.stroke();
-	}
+	//if (DEBUGCANVAS) {  // This draws the current waveform, useful for debugging
+		// waveCanvas.clearRect(0,0,512,256);
+		// waveCanvas.strokeStyle = "red";
+		// waveCanvas.beginPath();
+		// waveCanvas.moveTo(0,0);
+		// waveCanvas.lineTo(0,256);
+		// waveCanvas.moveTo(128,0);
+		// waveCanvas.lineTo(128,256);
+		// waveCanvas.moveTo(256,0);
+		// waveCanvas.lineTo(256,256);
+		// waveCanvas.moveTo(384,0);
+		// waveCanvas.lineTo(384,256);
+		// waveCanvas.moveTo(512,0);
+		// waveCanvas.lineTo(512,256);
+		// waveCanvas.stroke();
+		// waveCanvas.strokeStyle = "black";
+		// waveCanvas.beginPath();
+		// waveCanvas.moveTo(0,buf[0]);
+		// for (var i=1;i<512;i++) {
+		// 	waveCanvas.lineTo(i,128+(buf[i]*128));
+		// }
+		// waveCanvas.stroke();
+	//}
 
  	if (ac == -1) {
  		detectorElem.className = "vague";
@@ -370,6 +370,7 @@ function updatePitch( time ) {
 	 	pitch = ac;
 	 	pitchElem.innerText = Math.round( pitch ) ;
 	 	var note =  noteFromPitch( pitch );
+		drawDancingLine(note);
 		noteElem.innerHTML = noteStrings[note%12];
 		var detune = centsOffFromPitch( pitch, note );
 		if (detune == 0 ) {
@@ -387,4 +388,39 @@ function updatePitch( time ) {
 	if (!window.requestAnimationFrame)
 		window.requestAnimationFrame = window.webkitRequestAnimationFrame;
 	rafID = window.requestAnimationFrame( updatePitch );
+}
+
+prenote=null;
+newNote=null;
+i=0;
+start=-3;
+function drawDancingLine(note){
+
+	if (DEBUGCANVAS) {  // This draws the current waveform, useful for debugging
+		
+		waveCanvas.stroke();
+		waveCanvas.strokeStyle = "black";
+		
+		if(note>100){	//去噪音
+			newNote=prenote;
+		}else{
+			newNote=note;
+		}
+			
+		if(prenote&&newNote){			
+		// console.log("draw"+newNote);		
+		// console.log(note);
+			waveCanvas.beginPath();
+			waveCanvas.moveTo(i,500-6*prenote);
+			i +=1;
+			waveCanvas.lineTo(i,500-6*newNote);	
+		}			
+		prenote=newNote;
+
+		if(i>=1500){
+			waveCanvas.clearRect(0,0,1500,600);
+			i=0;
+		}
+	}
+
 }
